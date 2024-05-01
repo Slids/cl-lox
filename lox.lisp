@@ -9,6 +9,7 @@
 (defun main (args)
   (cond ((> (length args) 1)
 	 (print "Usage cl-lox: cl-lox [script]")
+	 #-swank
 	 (sb-ext:exit :code 64))
 	((= (length args) 1)
 	 (run-file (car args)))
@@ -30,6 +31,7 @@
 
     ;; Indicate an error in the exit code.
     (when *had-error*
+      #-swank
       (sb-ext:exit :code 65))))
 
 (defun run-prompt ()
