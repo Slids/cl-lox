@@ -1,0 +1,7 @@
+(defsystem :cl-log
+  :author "Jonathan Godbout <jgodbout@google.com>"
+  :version (:read-file-form "version.sexp")
+  :description "Lox in cl"
+  :license "MIT"
+  :serial t
+  :components ((:file "lox")))
