@@ -14,6 +14,10 @@
 	 (run-file (car args)))
 	(t (run-prompt))))
 
+;; This is silly, instead we should really just
+;; pass the stream down and read it, reading it into memory
+;; like this is wasteful. That being said, I'm trying to
+;; follow the book, so take it as you may...
 (defun run-file (path)
   (let (data)
     (with-open-file (stream path :direction :input)
