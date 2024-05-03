@@ -3,4 +3,7 @@
   :description "Lox in cl"
   :license "MIT"
   :serial t
-  :components ((:file "lox")))
+  :components ((:file "token-type")
+	       (:file "token")
+	       (:file "scanner")
+	       (:file "lox")))

@@ -44,7 +44,10 @@
 
 (defun run (source)
   (declare (type string source))
-  (print source))
+  (with-input-from-string (stream source)
+    (loop for next-char = (read-char stream nil)
+	  while next-char do
+	    (print next-char))))
 
 (defun lox-error (line message)
   (declare (type string message)
@@ -58,7 +61,7 @@
   (format *error-output*
 	  "[line ~a] Error ~a: ~a" line where message))
 
-#-(nil)
+#-swank
 (main (cdr sb-ext:*posix-argv*))
   
 	   
