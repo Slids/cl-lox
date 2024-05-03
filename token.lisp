@@ -13,7 +13,7 @@
 
 (defmethod print-object ((obj token) out)
   (print-unreadable-object (obj out :type t)
-    (format out "<~a ~a ~a>"
+    (format out "~a ~a ~a"
 	    (token-type obj)
 	    (token-lexeme obj)
 	    (token-literal obj))))

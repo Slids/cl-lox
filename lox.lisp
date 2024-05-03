@@ -1,5 +1,6 @@
 (defpackage :lox
-  (:use #:common-lisp))
+  (:use #:common-lisp)
+  (:export #:lox-error))
 
 (in-package :lox)
 
@@ -45,9 +46,9 @@
 (defun run (source)
   (declare (type string source))
   (with-input-from-string (stream source)
-    (loop for next-char = (read-char stream nil)
-	  while next-char do
-	    (print next-char))))
+    (let ((scanner (lox.scanner:make-scanner :stream stream))
+	  (tokens (lox.scanner:scan-tokens scanner)))
+      (print tokens))))
 
 (defun lox-error (line message)
   (declare (type string message)
