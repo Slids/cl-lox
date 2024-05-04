@@ -5,6 +5,6 @@
   ;; :serial t
   :components ((:file "token-type")
 	       (:file "token")
-	       (:file "scanner")
 	       (:file "lox")
+	       (:file "scanner")
 	       ))

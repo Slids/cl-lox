@@ -46,8 +46,8 @@
 (defun run (source)
   (declare (type string source))
   (with-input-from-string (stream source)
-    (let ((scanner (lox.scanner:make-scanner :stream stream))
-	  (tokens (lox.scanner:scan-tokens scanner)))
+    (let ((scanner (make-scanner :stream stream))
+	  (tokens (scan-tokens scanner)))
       (print tokens))))
 
 (defun lox-error (line message)
@@ -60,7 +60,7 @@
 	   (type fixnum line))
   (setf *had-error* t)
   (format *error-output*
-	  "[line ~a] Error ~a: ~a" line where message))
+	  "[line ~a] Error ~a: ~a~%" line where message))
 
 #-swank
 (main (cdr sb-ext:*posix-argv*))
