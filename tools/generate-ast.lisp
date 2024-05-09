@@ -24,11 +24,7 @@
 			   base-name
 			   ".lisp")))
     (with-open-file (s path :direction :output :if-exists :supersede)
-      (write-line "(in-package #:lox)" s)
-      (write-line "" s)
-      (write-string "(defstruct " s)
-      (write-string base-name s)
-      (write-line ")" s)
+      (format s "(in-package #:lox)~%~%(defstruct ~a)~%" base-name)
       
       (loop for type in types do
 	(terpri s)
