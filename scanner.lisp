@@ -10,13 +10,12 @@
 	while next-char
 	do
 	   (scan-token scanner))
-
+  
   (add-token scanner :eof "")
   (reverse (scanner-tokens scanner)))
 
 (defmethod scan-token ((scanner scanner))
   (let ((next-char (read-char (scanner-stream scanner) nil)))
-    (print next-char)
     (case next-char
       (#\( (add-token scanner :left-paren next-char))
       (#\) (add-token scanner :right-paren next-char))
@@ -56,7 +55,7 @@
 	      (unread-char next-char (scanner-stream scanner))
 	      (get-identifier scanner))
 	     (t (lox-error (scanner-line scanner)
-			       "Unexpected charecter.")))))))
+			   "Unexpected charecter.")))))))
 
 (defun get-string (scanner)
   (let* ((char-list
@@ -66,7 +65,7 @@
 			  (incf (scanner-line scanner)))
 			 ((not next-char)
 			  (lox-error (scanner-line scanner)
-					 "Unterminated string.")
+				     "Unterminated string.")
 			  (return-from get-string)))
 		   (read-char stream)
 		 until (eq next-char #\")
@@ -82,7 +81,7 @@
     (let ((second-char (peek-char nil stream nil)))
       (unread-char first-char stream)
       second-char)))
-    
+
 (defun get-number (scanner)
   (let* ((stream (scanner-stream scanner))
 	 (chars-before-.
@@ -159,5 +158,5 @@
 	 :literal literal
 	 :line (scanner-line scanner))
 	(scanner-tokens scanner)))
-  
-  
+
+

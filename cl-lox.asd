@@ -6,5 +6,6 @@
   :components ((:file "token-type")
 	       (:file "token")
 	       (:file "lox")
+	       (:file "expr")
 	       (:file "scanner")
 	       ))
