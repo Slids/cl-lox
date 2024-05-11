@@ -11,8 +11,8 @@
   (expression nil :type expr))
 
 (defstruct (literal (:include expr))
-  (NIL nil :type value))
+  (value nil))
 
 (defstruct (unary (:include expr))
-  (operator nil :type lox.token)
+  (operator nil :type lox.token:token)
   (right nil :type expr))

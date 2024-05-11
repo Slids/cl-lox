@@ -1,7 +1,8 @@
 (defpackage :lox.token
   (:use #:common-lisp)
   (:export #:token
-	   #:make-token))
+	   #:make-token
+	   #:token-lexeme))
 
 (in-package :lox.token)
 

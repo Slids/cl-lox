@@ -34,9 +34,9 @@
   (format stream "(defstruct (~a (:include ~a))" type base-type)
   (loop for (type name) in fields do
     (terpri stream)
-    (if type
+    (if name
 	(format stream "  (~a nil :type ~a)" name type)
-	(format stream "  (~a nil)" name)))
+	(format stream "  (~a nil)" type)))
   (write-line ")" stream))
 
 (main (cdr sb-ext:*posix-argv*))

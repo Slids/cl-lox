@@ -7,5 +7,6 @@
 	       (:file "token")
 	       (:file "lox")
 	       (:file "expr")
+	       (:file "ast-printer")
 	       (:file "scanner")
 	       ))
