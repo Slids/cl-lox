@@ -2,7 +2,10 @@
   (:use #:common-lisp)
   (:export #:token
 	   #:make-token
-	   #:token-lexeme))
+	   #:token-lexeme
+	   #:token-type
+	   #:token-literal
+	   #:token-line))
 
 (in-package :lox.token)
 

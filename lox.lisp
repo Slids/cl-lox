@@ -50,9 +50,7 @@
 	  (tokens (scan-tokens scanner)))
       (print tokens))))
 
-(defun lox-error (line message)
-  (declare (type string message)
-	   (type fixnum line))
+(defmethod lox-error ((line fixnum) (message string))
   (report line "" message))
 
 (defun report (line where message)
