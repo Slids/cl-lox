@@ -11,7 +11,8 @@
   (current 0 :type integer))
 
 (defun parse (parser)
-  (expression parser))
+  (ignore-errors 
+   (expression parser)))
 
 (defun expression (parser)
   (declare (type parser parser))
