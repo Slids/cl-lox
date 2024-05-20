@@ -10,6 +10,9 @@
   (tokens nil :type list)
   (current 0 :type integer))
 
+(defun parse (parser)
+  (expression parser))
+
 (defun expression (parser)
   (declare (type parser parser))
   (equality parser))
@@ -19,7 +22,7 @@
   `(defun ,parser-name (parser)
      (declare (type parser parser))
      (let ((expr (,leaf-func parser)))
-       (loop while (match parser ,@token-types) do
+       (loop while (parser-match parser ,@token-types) do
 	 (let ((operator (previous parser))
 	       (right (,leaf-func parser)))
 	   (setf expr (make-binary :left expr
@@ -34,7 +37,7 @@
 
 (defun unary (parser)
   (declare (type parser parser))
-  (if (match parser :bang :minus)
+  (if (parser-match parser :bang :minus)
       (let ((operator (previous parser))
 	    (right (unary parser)))
 	(make-unary :operator operator
@@ -43,17 +46,21 @@
 
 (defun primary (parser)
   (declare (type parser parser))
-  (if (match parser :left-paren)
-      (let ((expr (expression parser)))
-	(consume parser :right-paren "Expect ')' after expression")
-	(make-grouping expression))
-      (make-literal
-       (cond ((match parser :false) nil)
-	     ((match parser :true) t)
-	     ((match parser :nil) nil)
-	     ((match parser :number :string)
-	      (lox.token:token-literal
-	       (previous parser)))))))
+  (cond ((parser-match parser :false)
+	 (make-literal :value nil))
+	((parser-match parser :true)
+	 (make-literal :value  t))
+	((parser-match parser  :nil)
+	 (make-literal :value  nil))
+	((parser-match parser :number :string)
+	 (make-literal :value  (lox.token:token-literal
+				(previous parser))))
+	((parser-match parser :left-paren)
+	 (let ((expr (expression parser)))
+	   (consume parser :right-paren "Expect ')' after expression")
+	   (make-grouping :expression expr)))
+	(t
+	 (lox-error (peek parser) "Expect expression."))))
 
 (define-condition parser-error (error)
   ())
@@ -62,32 +69,46 @@
   (declare (type parser parser)
 	   (type lox.token-type:token-type type)
 	   (type string message))
-  (cond ((eql (check parser type))
+  (cond ((check parser type)
 	 (advance parser))
 	(t (lox-error (peek parser) message)
 	   (error 'parser-error))))
 
 ;; Lox error specific to parser.
 (defmethod lox-error ((token lox.token:token) (message string))
-  (let ((line (lox.token:token-line token))
-	(lexeme (lox.token:token-lexeme token))
-	(where (if (eql (lox.token:token-type token) :eof)
-		   " at end"
-		   (conatenate 'string " at '" lexeme "'"))))
+  (let* ((line (lox.token:token-line token))
+	 (lexeme (lox.token:token-lexeme token))
+	 (where (if (eql (lox.token:token-type token) :eof)
+		    " at end"
+		    (concatenate 'string " at '" lexeme "'"))))
     (report line where message)))
 	
-(defun match (parser &rest tokens)
+(defun synchronize (parser)
+  (declare (type parser parser))
+  (loop while (not (is-at-end parser)) do
+    (when (eql (lox.token:token-type (previous parser))
+	       :semicolon)
+      (return-from synchronize))
+
+    (when (member (lox.token:token-type (peek parser))
+		  '(:class :for :fun :if :print :return :var :while))
+      (return-from synchronize))
+
+    (advance parser)))
+	
+
+(defun parser-match (parser &rest tokens)
   (declare (type parser parser))
   (dolist (token tokens)
     (when (check parser token)
       (advance parser)
-      (return-from match t))))
+      (return-from parser-match t))))
 
 (defun check (parser token-type)
   (declare (type parser parser)
 	   (type lox.token-type:token-type token-type))
   (and (not (is-at-end parser))
-       (eql (peek parser) token-type)))
+       (eql (lox.token:token-type (peek parser)) token-type)))
 
 (defun advance (parser)
   (declare (type parser parser))

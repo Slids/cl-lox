@@ -27,19 +27,19 @@
       (#\+ (add-token scanner :plus next-char))
       (#\; (add-token scanner :semicolon next-char))
       (#\* (add-token scanner :star next-char))
-      (#\! (if (match #\= scanner)
+      (#\! (if (scanner-match scanner #\=)
 	       (add-token scanner :bang-equal "!=")
 	       (add-token scanner :bang next-char)))
-      (#\= (if (match #\= scanner)
+      (#\= (if (scanner-match scanner #\=)
 	       (add-token scanner :equal-equal "==")
 	       (add-token scanner :equal next-char)))
-      (#\< (if (match #\= scanner)
+      (#\< (if (scanner-match scanner #\= )
 	       (add-token scanner :less-equal "<=")
 	       (add-token scanner :less next-char)))
-      (#\> (if (match #\= scanner)
+      (#\> (if (scanner-match scanner #\=)
 	       (add-token scanner :greater-equal ">=")
 	       (add-token scanner :greater next-char)))
-      (#\/ (if (match #\/ scanner)
+      (#\/ (if (scanner-match scanner #\/)
 	       (loop for c = (peek-char nil (scanner-stream scanner) nil)
 		     while (and c (not (eq c #\newline)))  do 
 		       (read-char (scanner-stream scanner)))
@@ -138,11 +138,11 @@
 	    (add-token scanner type identifier)
 	    (add-token scanner :identifier identifier))))))
 
-(defun match (expected scanner)
+(defmethod scanner-match (scanner expected)
   (let ((peek-char (peek-char nil (scanner-stream scanner) nil)))
     (unless (and peek-char
 		 (eq expected peek-char))
-      (return-from match nil))
+      (return-from scanner-match nil))
     (read-char (scanner-stream scanner))))
 
 (defun add-token (scanner type text

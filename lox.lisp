@@ -41,14 +41,18 @@
 	while line
 	do
 	   (run line)
-	   (print "> ")))
+	   (print "> ")
+	   (setf *had-error* nil)))
 
 (defun run (source)
   (declare (type string source))
   (with-input-from-string (stream source)
-    (let ((scanner (make-scanner :stream stream))
-	  (tokens (scan-tokens scanner)))
-      (print tokens))))
+    (let* ((scanner (make-scanner :stream stream))
+	   (tokens (scan-tokens scanner))
+	   (parser (make-parser :tokens tokens))
+	   (expr (parse parser)))
+      (unless *had-error*
+	(print-expr expr *standard-output*)))))
 
 (defmethod lox-error ((line fixnum) (message string))
   (report line "" message))
