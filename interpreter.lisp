@@ -2,12 +2,13 @@
 
 (defun interpret (expr)
   (declare (type expr expr))
-  (handler-bind
-      ((runtime-error
-	 (lambda (c)
-	   (runtime-error c))))
-    (let ((value (evaluate expr)))
-      (print (stringify value)))))
+  (ignore-errors
+   (handler-bind
+       ((runtime-error
+	  (lambda (c)
+	    (runtime-error c))))
+     (let ((value (evaluate expr)))
+       (print (stringify value))))))
   
 (define-condition runtime-error (error)
   ((token :initarg :token
