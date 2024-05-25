@@ -10,4 +10,4 @@
 	       (:file "ast-printer")
 	       (:file "scanner")
 	       (:file "parser")
-	       ))
+	       (:file "interpreter")))

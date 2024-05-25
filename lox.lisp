@@ -6,6 +6,8 @@
 
 (defvar *had-error* nil
   "Has an error occured")
+(defvar *had-runtime-error* nil
+  "Has a runtime error occured")
 
 (defun main (args)
   (cond ((> (length args) 1)
@@ -33,7 +35,10 @@
     ;; Indicate an error in the exit code.
     (when *had-error*
       #-swank
-      (sb-ext:exit :code 65))))
+      (sb-ext:exit :code 65))
+    (when *had-runtime-error*
+      #-swank
+      (sb-ext:exit :code 70))))
 
 (defun run-prompt ()
   (print "> ")
@@ -52,7 +57,15 @@
 	   (parser (make-parser :tokens tokens))
 	   (expr (parse parser)))
       (unless *had-error*
-	(print-expr expr *standard-output*)))))
+	;; (print-expr expr *standard-output*)
+	(interpret expr)
+	))))
+
+(defun runtime-error (error)
+  (format t "~S ~% [line ~A]~%"
+	  (message error)
+	  (lox.token:token-line (token error)))
+  (setf *had-runtime-error* t))
 
 (defmethod lox-error ((line fixnum) (message string))
   (report line "" message))
