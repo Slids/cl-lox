@@ -15,7 +15,14 @@
       '(("binary" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
 	("grouping" (("expr" "expression")))
 	("literal" (("value")))
-	("unary" (("lox.token" "operator") ("expr" "right")))))))
+	("unary" (("lox.token:token" "operator") ("expr" "right")))
+	("lox-variable" (("lox.token:token" "name")))))
+    (define-ast
+	output-dir
+      "stmt"
+      '(("expression" (("expr" "expression")))
+	("lox-print" (("expr" "expression")))
+	("var" (("lox.token:token" "name") ("(or nil expr)" "initializer")))))))
 
 (defun define-ast (output-dir base-name types)
   (let ((path (concatenate 'string

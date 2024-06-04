@@ -16,3 +16,6 @@
 (defstruct (unary (:include expr))
   (operator nil :type lox.token:token)
   (right nil :type expr))
+
+(defstruct (lox-variable (:include expr))
+  (name nil :type lox.token:token))

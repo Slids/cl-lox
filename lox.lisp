@@ -55,10 +55,10 @@
     (let* ((scanner (make-scanner :stream stream))
 	   (tokens (scan-tokens scanner))
 	   (parser (make-parser :tokens tokens))
-	   (expr (parse parser)))
+	   (statements (parse parser)))
       (unless *had-error*
 	;; (print-expr expr *standard-output*)
-	(interpret expr)
+	(interpret statements)
 	))))
 
 (defun runtime-error (error)

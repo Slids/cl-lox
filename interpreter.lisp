@@ -1,15 +1,20 @@
 (in-package #:lox)
 
-(defun interpret (expr)
-  (declare (type expr expr))
+(defvar *environment* (make-environment))
+
+(defun interpret (statements)
   (ignore-errors
    (handler-bind
-       ((runtime-error
-	  (lambda (c)
-	    (runtime-error c))))
-     (let ((value (evaluate expr)))
-       (print (stringify value))))))
-  
+        ((runtime-error
+    	  (lambda (c)
+    	    (break)
+    	    (runtime-error c))))
+     (dolist (statement statements)
+       (accept statement)))))
+
+(defun execute (statement)
+  (accept statement))
+
 (define-condition runtime-error (error)
   ((token :initarg :token
           :initform nil
@@ -37,6 +42,9 @@
       (:minus (- right))
       (:bang (not (is-truthy right)))
       (otherwise nil))))
+
+(defmethod evaluate ((expr lox-variable))
+  (env-get *environment* (lox-variable-name expr)))
 
 (defun check-number-operand (operator operand)
   (if (typep operand 'double-float)
@@ -111,8 +119,18 @@
 	       (subseq value 0 (- (length value) 4))
 	       value)))
 	(t (format nil "~A" object))))
-	
 
-			 
+(defmethod accept ((stmt expression))
+  (evaluate (expression-expression stmt))
+  (values))
 
+(defmethod accept ((stmt lox-print))
+  (let ((value (evaluate (lox-print-expression stmt))))
+    (print (stringify value)))
+  (values))
 
+(defmethod accept ((stmt var))
+  (let ((value (and (var-initializer stmt)
+		    (evaluate (var-initializer stmt)))))
+    (env-define *environment* (var-name stmt) value))
+  (values))

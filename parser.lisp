@@ -11,8 +11,31 @@
   (current 0 :type integer))
 
 (defun parse (parser)
-  (ignore-errors 
-   (expression parser)))
+  (let (statements)
+    (loop while (not (is-at-end parser)) do
+      (push (lox-declaration parser) statements))
+    (reverse statements)))
+
+(defun lox-declaration (parser)
+  (declare (type parser parser))
+  (handler-bind
+      ((parser-error
+	 (lambda (err)
+	   (declare (ignore err))
+	   (synchronize parser)
+	   (values))))
+    (if (parser-match parser :var)
+	(var-declaration parser)
+	(statement parser))))
+
+(defun var-declaration (parser)
+  (declare (type parser parser))
+  (let ((name (consume parser :identifier "Expect variable name."))
+	(initializer
+	  (and (parser-match parser :equal)
+	       (expression parser))))
+    (consume parser :semicolon "Expect `;` after declaration")
+    (make-var :name name :initializer initializer)))
 
 (defun expression (parser)
   (declare (type parser parser))
@@ -36,6 +59,24 @@
 (binary-parser-impl term factor (:minus :plus))
 (binary-parser-impl factor unary (:slash :star))
 
+(defun statement (parser)
+  (declare (type parser parser))
+  (if (parser-match parser :print)
+      (print-statement parser)
+      (expression-statement parser)))
+
+(defun print-statement (parser)
+  (declare (type parser parser))
+  (let ((expr (expression parser)))
+    (consume parser :semicolon "Expect `;` after value")
+    (make-lox-print :expression expr)))
+
+(defun expression-statement (parser)
+  (declare (type parser parser))
+  (let ((expr (expression parser)))
+    (consume parser :semicolon "Expect `;` after expression")
+    (make-expression :expression expr)))
+
 (defun unary (parser)
   (declare (type parser parser))
   (if (parser-match parser :bang :minus)
@@ -56,6 +97,8 @@
 	((parser-match parser :number :string)
 	 (make-literal :value  (lox.token:token-literal
 				(previous parser))))
+	((parser-match parser :identifier)
+	 (make-lox-variable :name (previous parser)))
 	((parser-match parser :left-paren)
 	 (let ((expr (expression parser)))
 	   (consume parser :right-paren "Expect ')' after expression")
