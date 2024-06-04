@@ -7,7 +7,6 @@
    (handler-bind
         ((runtime-error
     	  (lambda (c)
-    	    (break)
     	    (runtime-error c))))
      (dolist (statement statements)
        (accept statement)))))
