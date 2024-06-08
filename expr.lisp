@@ -2,6 +2,10 @@
 
 (defstruct expr)
 
+(defstruct (assign (:include expr))
+  (name nil :type lox.token:token)
+  (value nil :type expr))
+
 (defstruct (binary (:include expr))
   (left nil :type expr)
   (operator nil :type lox.token:token)

@@ -133,3 +133,9 @@
 		    (evaluate (var-initializer stmt)))))
     (env-define *environment* (var-name stmt) value))
   (values))
+
+(defmethod evaluate ((expr assign))
+  (let ((value (evaluate (assign-value expr))))
+    (env-assign *environment* (assign-name expr) value)
+    value))
+  

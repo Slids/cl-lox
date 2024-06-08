@@ -12,7 +12,8 @@
     (define-ast
 	output-dir
       "expr"
-      '(("binary" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
+      '(("assign" (("lox.token:token" "name") ("expr" "value")))
+	("binary" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
 	("grouping" (("expr" "expression")))
 	("literal" (("value")))
 	("unary" (("lox.token:token" "operator") ("expr" "right")))

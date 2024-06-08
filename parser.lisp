@@ -39,7 +39,23 @@
 
 (defun expression (parser)
   (declare (type parser parser))
-  (equality parser))
+  (assignment parser))
+
+(defun assignment (parser)
+  (declare (type parser parser))
+  (let ((expr (equality parser)))
+    (when (parser-match parser :equal)
+      (let ((equals (previous parser))
+	    (value (assignment parser)))
+	(when (typep expr 'lox-variable)
+	  (return-from assignment
+	    (make-assign :name (lox-variable-name expr)
+			 :value value)))
+	
+	(lox-error equals "Invalid assignment target.")))
+    expr))
+
+	
 
 ;; Use a macro for binary parsers since there all the same form.
 (defmacro binary-parser-impl (parser-name leaf-func token-types)
