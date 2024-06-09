@@ -21,7 +21,8 @@
     (define-ast
 	output-dir
       "stmt"
-      '(("expression" (("expr" "expression")))
+      '(("lox-block" (("statements")))
+	("expression" (("expr" "expression")))
 	("lox-print" (("expr" "expression")))
 	("var" (("lox.token:token" "name") ("(or nil expr)" "initializer")))))))
 

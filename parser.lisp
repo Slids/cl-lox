@@ -77,9 +77,11 @@
 
 (defun statement (parser)
   (declare (type parser parser))
-  (if (parser-match parser :print)
-      (print-statement parser)
-      (expression-statement parser)))
+  (cond ((parser-match parser :print)
+	 (print-statement parser))
+	((parser-match parser :left-brace)
+	 (make-lox-block :statements (lox-block parser)))
+	(t (expression-statement parser))))
 
 (defun print-statement (parser)
   (declare (type parser parser))
@@ -92,6 +94,17 @@
   (let ((expr (expression parser)))
     (consume parser :semicolon "Expect `;` after expression")
     (make-expression :expression expr)))
+
+(defun lox-block (parser)
+  (declare (type parser parser))
+  (let (statements)
+    (loop while (and (not (check parser :right-brace))
+		     (not (is-at-end parser)))
+	  do
+	     (push (lox-declaration parser) statements))
+    
+    (consume parser :right-brace "Expect } after block.")
+    (nreverse statements)))
 
 (defun unary (parser)
   (declare (type parser parser))

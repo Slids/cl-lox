@@ -3,21 +3,20 @@
 (defvar *environment* (make-environment))
 
 (defun interpret (statements)
-  (ignore-errors
+  ;; (ignore-errors
    (handler-bind
         ((runtime-error
     	  (lambda (c)
     	    (runtime-error c))))
      (dolist (statement statements)
-       (accept statement)))))
+       (accept statement)))) ;;)
 
 (defun execute (statement)
   (accept statement))
 
 (define-condition runtime-error (error)
   ((token :initarg :token
-          :initform nil
-          :accessor token)
+	  :accessor token)
    (message :initarg :message
 	    :initform ""
 	    :reader message))
@@ -134,6 +133,12 @@
     (env-define *environment* (var-name stmt) value))
   (values))
 
+(defmethod accept ((stmt lox-block))
+  (let ((*environment* (make-environment :enclosing *environment*)))
+    (dolist (statement (lox-block-statements stmt))
+      (execute statement))))
+
+	
 (defmethod evaluate ((expr assign))
   (let ((value (evaluate (assign-value expr))))
     (env-assign *environment* (assign-name expr) value)

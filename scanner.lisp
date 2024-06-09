@@ -44,8 +44,8 @@
 		     while (and c (not (eq c #\newline)))  do 
 		       (read-char (scanner-stream scanner)))
 	       (add-token scanner :slash next-char)))
-      ((#\space #\return #\tab))
-      (#\newline (incf (scanner-line scanner)))
+      ((#\space #\tab #\return))
+      ((#\newline #\linefeed) (incf (scanner-line scanner)))
       (#\" (get-string scanner))
       (otherwise
        (cond ((digit-char-p next-char)

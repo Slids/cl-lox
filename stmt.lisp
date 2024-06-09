@@ -2,6 +2,9 @@
 
 (defstruct stmt)
 
+(defstruct (lox-block (:include stmt))
+  (statements nil))
+
 (defstruct (expression (:include stmt))
   (expression nil :type expr))
 
