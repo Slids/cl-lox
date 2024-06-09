@@ -1,6 +1,4 @@
 print "one";
-
-
 print true;
 print 2 + 1;
 
@@ -10,4 +8,3 @@ print a + b;
 a = 10;
 print a;
 print a = 5;
-

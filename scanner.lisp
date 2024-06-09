@@ -3,7 +3,7 @@
 (defstruct scanner
   (stream nil :type stream)
   (tokens nil :type list)
-  (line 1 :type fixnum))
+  (line 0 :type fixnum))
 
 (defmethod scan-tokens ((scanner scanner))
   (loop for next-char = (peek-char nil (scanner-stream scanner) nil)

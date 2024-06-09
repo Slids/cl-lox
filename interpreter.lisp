@@ -124,7 +124,7 @@
 
 (defmethod accept ((stmt lox-print))
   (let ((value (evaluate (lox-print-expression stmt))))
-    (print (stringify value)))
+    (format t "~A~%" (stringify value)))
   (values))
 
 (defmethod accept ((stmt var))

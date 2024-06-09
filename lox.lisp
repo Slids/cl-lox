@@ -28,7 +28,8 @@
       (setf data 
 	    (loop for line = (read-line stream nil)
 		  while line
-		  collect line)))
+		  collect line
+		  collect #\newline)))
     (setf data (format nil "~{~a~}" data))
     (run data)
 
