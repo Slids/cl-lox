@@ -37,13 +37,21 @@
     (consume parser :semicolon "Expect `;` after declaration")
     (make-var :name name :initializer initializer)))
 
+(defun while-statement (parser)
+  (declare (type parser parser))
+  (consume parser :left-paren "Expect '(' after 'while'.")
+  (let ((condition (expression parser))
+	(body (progn (consume parser :right-paren "Expect ')' after condition.")
+		     (statement parser))))
+    (make-lox-while :condition condition :body body)))
+
 (defun expression (parser)
   (declare (type parser parser))
   (assignment parser))
 
 (defun assignment (parser)
   (declare (type parser parser))
-  (let ((expr (equality parser)))
+  (let ((expr (lox-or parser)))
     (when (parser-match parser :equal)
       (let ((equals (previous parser))
 	    (value (assignment parser)))
@@ -54,8 +62,28 @@
 	
 	(lox-error equals "Invalid assignment target.")))
     expr))
-
 	
+(defun lox-or (parser)
+  (declare (type parser parser))
+  (let ((expr (lox-and parser)))
+    (loop while (parser-match parser :or) do
+      (let ((operator (previous parser))
+	    (right (lox-and parser)))
+	(setf expr (make-logical :left expr
+				 :operator operator
+				 :right right))))
+    expr))
+
+(defun lox-and (parser)
+  (declare (type parser parser))
+  (let ((expr (equality parser)))
+    (loop while (parser-match parser :and) do
+      (let ((operator (previous parser))
+	    (right (equality parser)))
+	(setf expr (make-logical :left expr
+				 :operator operator
+				 :right right))))
+    expr))	
 
 ;; Use a macro for binary parsers since there all the same form.
 (defmacro binary-parser-impl (parser-name leaf-func token-types)
@@ -77,11 +105,27 @@
 
 (defun statement (parser)
   (declare (type parser parser))
-  (cond ((parser-match parser :print)
+  (cond ((parser-match parser :if)
+	 (if-statement parser))
+	((parser-match parser :print)
 	 (print-statement parser))
+	((parser-match parser :while)
+	 (while-statement parser))
 	((parser-match parser :left-brace)
 	 (make-lox-block :statements (lox-block parser)))
 	(t (expression-statement parser))))
+
+(defun if-statement (parser)
+  (declare (type parser parser))
+  (consume parser :left-paren "Expect `(` after `if`.")
+  (let ((condition (expression parser)))
+    (consume parser :right-paren "Expect `)` after condition.")
+    (let ((then-branch (statement parser))
+	  (else-branch (when (parser-match parser :else)
+			 (statement parser))))
+      (make-lox-if :condition condition
+		   :then-branch then-branch
+		   :else-branch else-branch))))
 
 (defun print-statement (parser)
   (declare (type parser parser))

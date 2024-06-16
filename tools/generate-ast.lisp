@@ -16,6 +16,7 @@
 	("binary" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
 	("grouping" (("expr" "expression")))
 	("literal" (("value")))
+	("logical" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
 	("unary" (("lox.token:token" "operator") ("expr" "right")))
 	("lox-variable" (("lox.token:token" "name")))))
     (define-ast
@@ -23,7 +24,9 @@
       "stmt"
       '(("lox-block" (("statements")))
 	("expression" (("expr" "expression")))
+	("lox-if" (("expr" "condition") ("stmt" "then-branch") ("(or null stmt)" "else-branch")))
 	("lox-print" (("expr" "expression")))
+	("lox-while" (("expr" "condition") ("stmt" "body")))
 	("var" (("lox.token:token" "name") ("(or nil expr)" "initializer")))))))
 
 (defun define-ast (output-dir base-name types)

@@ -58,7 +58,7 @@
 	   (parser (make-parser :tokens tokens))
 	   (statements (parse parser)))
       (unless *had-error*
-	;; (print-expr expr *standard-output*)
+	;; (print statements)
 	(interpret statements)
 	))))
 

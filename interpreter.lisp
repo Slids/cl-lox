@@ -122,6 +122,13 @@
   (evaluate (expression-expression stmt))
   (values))
 
+(defmethod accept ((stmt lox-if))
+  (cond ((is-truthy (evaluate (lox-if-condition stmt)))
+	 (accept (lox-if-then-branch stmt)))
+	((lox-if-else-branch stmt)
+	 (accept (lox-if-else-branch stmt))))
+  (values))
+
 (defmethod accept ((stmt lox-print))
   (let ((value (evaluate (lox-print-expression stmt))))
     (format t "~A~%" (stringify value)))
@@ -131,6 +138,11 @@
   (let ((value (and (var-initializer stmt)
 		    (evaluate (var-initializer stmt)))))
     (env-define *environment* (var-name stmt) value))
+  (values))
+
+(defmethod accept ((stmt lox-while))
+  (loop while (is-truthy (evaluate (lox-while-condition stmt))) do
+    (accept (lox-while-body stmt)))
   (values))
 
 (defmethod accept ((stmt lox-block))
@@ -143,4 +155,12 @@
   (let ((value (evaluate (assign-value expr))))
     (env-assign *environment* (assign-name expr) value)
     value))
-  
+
+(defmethod evaluate ((expr logical))
+  (let ((left (evaluate (logical-left expr))))
+    (if (eql (lox.token:token-type (logical-operator expr)) :or)
+	(if (is-truthy left)
+	    (return-from evaluate left))
+	(unless (is-truthy left)
+	  (return-from evaluate left)))
+    (evaluate (logical-right expr))))

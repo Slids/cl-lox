@@ -8,8 +8,17 @@
 (defstruct (expression (:include stmt))
   (expression nil :type expr))
 
+(defstruct (lox-if (:include stmt))
+  (condition nil :type expr)
+  (then-branch nil :type stmt)
+  (else-branch nil :type (or null stmt)))
+
 (defstruct (lox-print (:include stmt))
   (expression nil :type expr))
+
+(defstruct (lox-while (:include stmt))
+  (condition nil :type expr)
+  (body nil :type stmt))
 
 (defstruct (var (:include stmt))
   (name nil :type lox.token:token)

@@ -33,7 +33,7 @@
 	       (environment-values environment))
     (declare (ignore _))
     (cond (present-p
-	   (setf (gethash name (environment-values environment)) value)
+	   (setf (gethash (lox.token:token-lexeme name) (environment-values environment)) value)
 	   (values))
 	  ((environment-enclosing environment)
 	   (env-assign (environment-enclosing environment) name value))
