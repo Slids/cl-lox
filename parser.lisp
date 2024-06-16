@@ -105,7 +105,9 @@
 
 (defun statement (parser)
   (declare (type parser parser))
-  (cond ((parser-match parser :if)
+  (cond ((parser-match parser :for)
+	 (for-statement parser))
+	((parser-match parser :if)
 	 (if-statement parser))
 	((parser-match parser :print)
 	 (print-statement parser))
@@ -114,6 +116,42 @@
 	((parser-match parser :left-brace)
 	 (make-lox-block :statements (lox-block parser)))
 	(t (expression-statement parser))))
+
+(defun for-statement (parser)
+  (declare (type parser parser))
+  (consume parser :left-paren "Expect `(` after `for`.")
+
+  (let (initializer condition increment body)
+    (cond ((parser-match parser :semicolon))
+	  ((parser-match parser :var)
+	   (setf initializer (var-declaration parser)))
+	  (t (setf initializer (expression-statement parser))))
+
+    (if (check parser :semicolon)
+	(setf condition (make-literal :value t))
+	(setf condition (expression parser)))
+
+    (consume parser :semicolon "Expect `;` after loop condition.")
+
+    (unless (check parser :right-paren)
+      (setf increment (expression parser)))
+
+    (consume parser :right-paren "Expect `)` after for clauses.")
+    
+    (setf body (statement parser))
+
+    (when increment
+      (setf body (make-lox-block :statements
+				 (list body (make-expression :expression increment)))))
+
+    (setf body (make-lox-while :condition condition
+			       :body body))
+
+    (when initializer
+      (setf body (make-lox-block :statements
+				 (list initializer body))))
+
+    body))
 
 (defun if-statement (parser)
   (declare (type parser parser))
