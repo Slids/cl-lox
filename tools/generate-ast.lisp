@@ -14,6 +14,7 @@
       "expr"
       '(("assign" (("lox.token:token" "name") ("expr" "value")))
 	("binary" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
+	("call" (("expr" "callee") ("lox.token:token" "paren") ("arguments")))
 	("grouping" (("expr" "expression")))
 	("literal" (("value")))
 	("logical" (("expr" "left") ("lox.token:token" "operator") ("expr" "right")))
@@ -24,8 +25,10 @@
       "stmt"
       '(("lox-block" (("statements")))
 	("expression" (("expr" "expression")))
+	("lox-function" (("lox.token:token" "name") ("params") ("body")))
 	("lox-if" (("expr" "condition") ("stmt" "then-branch") ("(or null stmt)" "else-branch")))
 	("lox-print" (("expr" "expression")))
+	("lox-return" (("lox.token:token" "keyword") ("(or null expr)" "value")))
 	("lox-while" (("expr" "condition") ("stmt" "body")))
 	("var" (("lox.token:token" "name") ("(or nil expr)" "initializer")))))))
 

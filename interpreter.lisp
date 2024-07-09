@@ -1,6 +1,17 @@
 (in-package #:lox)
 
-(defvar *environment* (make-environment))
+(defvar *globals* (make-environment))
+(defvar *environment* *globals*)
+
+(env-define
+ *globals*
+ (lox.token:make-token :lexeme "clock" :type :identifier)
+ (make-lox-callable
+  :arity 0
+  :call (lambda (args)
+	  (declare (ignore args))
+	  (coerce (get-universal-time) 'double-float))
+  :to-string "native"))
 
 (defun interpret (statements)
   ;; (ignore-errors
@@ -100,6 +111,26 @@
 		       :message "Operands must be two numbers or two strings."))))
       (otherwise nil))))
 
+(defmethod evaluate ((expr call))
+  (let ((callee (evaluate (call-callee expr)))
+	arguments)
+    (dolist (argument (call-arguments expr))
+      (push (evaluate argument) arguments))
+    (unless (= (length arguments) (arity callee))
+      (error 'runtime-error
+	     (call-paren expr)
+	     (format nil "Expected ~a arguments but got ~a."
+		     (arity callee)
+		     (arity callee))))
+	      
+    (unless (typep callee 'lox-callable)
+      (error 'runtime-error
+	     (call-paren expr)
+	     "Can only call functions and classes."))
+
+    (funcall (lox-callable-call callee)
+	     (nreverse arguments))))
+
 (defun is-equal (left right)
   (cond ((and (null left) (null right)) t)
 	((and (null left)) t)
@@ -122,6 +153,13 @@
   (evaluate (expression-expression stmt))
   (values))
 
+(defmethod accept ((stmt lox-function))
+  (let ((function (lox-function stmt *environment*)))
+    (env-define *environment*
+		(lox-function-name stmt)
+		function))
+  (values))		      
+
 (defmethod accept ((stmt lox-if))
   (cond ((is-truthy (evaluate (lox-if-condition stmt)))
 	 (accept (lox-if-then-branch stmt)))
@@ -133,6 +171,14 @@
   (let ((value (evaluate (lox-print-expression stmt))))
     (format t "~A~%" (stringify value)))
   (values))
+
+(defmethod accept ((stmt lox-return))
+  (let (value)
+    (when (lox-return-value stmt)
+      (setf value
+	    (evaluate (lox-return-value stmt))))
+    (error 'inner-lox-return
+	   :value value)))
 
 (defmethod accept ((stmt var))
   (let ((value (and (var-initializer stmt)

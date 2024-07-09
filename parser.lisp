@@ -24,9 +24,12 @@
 	   (declare (ignore err))
 	   (synchronize parser)
 	   (values))))
-    (if (parser-match parser :var)
-	(var-declaration parser)
-	(statement parser))))
+    (cond
+      ((parser-match parser :fun)
+       (function-statement parser "function"))
+      ((parser-match parser :var)
+       (var-declaration parser))
+      (t (statement parser)))))
 
 (defun var-declaration (parser)
   (declare (type parser parser))
@@ -111,6 +114,8 @@
 	 (if-statement parser))
 	((parser-match parser :print)
 	 (print-statement parser))
+	((parser-match parser :return)
+	 (return-statement parser))
 	((parser-match parser :while)
 	 (while-statement parser))
 	((parser-match parser :left-brace)
@@ -171,12 +176,44 @@
     (consume parser :semicolon "Expect `;` after value")
     (make-lox-print :expression expr)))
 
+(defun return-statement (parser)
+  (declare (type parser parser))
+  (let ((keyword (previous parser))
+	value expr)
+    (unless (check parser :semicolon)
+      (setf value (expression parser)))
+    (consume parser :semicolon "Expect `;` after return value")
+    (make-lox-return :keyword keyword
+		     :value value)))
+
 (defun expression-statement (parser)
   (declare (type parser parser))
   (let ((expr (expression parser)))
     (consume parser :semicolon "Expect `;` after expression")
     (make-expression :expression expr)))
 
+(defun function-statement (parser kind)
+  (declare (type parser parser))
+  (let ((name (consume parser :identifier
+		       (format nil "Expect ~a name." kind)))
+	parameters)
+    (consume parser :left-paren (format nil "Expect '(' after ~a name." kind))
+    (unless (check parser :right-paren)
+      (loop for a = t then (parser-match parser :comma)
+	    while a do
+	(when (> (length parameters) 255)
+	  (error (peek parser) "Can't have more than 255 parameters."))
+
+	(push (consume parser :identifier "Expect parameter name.")
+	      parameters)))
+    (consume parser :right-paren  "Expect ')' after parameters.")
+    
+  (consume parser :left-brace (format nil "Expect '{' before ~a body." kind))
+  (let ((body (make-lox-block :statements (lox-block parser))))
+    (make-lox-function :name name
+		       :params (nreverse parameters)
+		       :body body))))
+  
 (defun lox-block (parser)
   (declare (type parser parser))
   (let (statements)
@@ -195,7 +232,33 @@
 	    (right (unary parser)))
 	(make-unary :operator operator
 		    :right right))
-      (primary parser)))
+      (call parser)))
+
+(defun call (parser)
+  (declare (type parser parser))
+  (let ((expr (primary parser)))
+    (loop
+      named call-loop
+      while t do
+	(if (parser-match parser :left-paren)
+	    (setf expr (finish-call expr parser))
+	    (return-from call-loop)))
+    expr))
+
+(defun finish-call (callee parser)
+  (declare (type parser parser)
+	   (type expr wcallee))
+  (let (args token)
+    (unless (check parser :right-paren)
+      (loop for next = t then (parser-match parser :comma)
+	    while next do
+	      (when (>= (length args) 255)
+		(lox-error (peek parser) "Can't have more than 255 arguments."))
+	      (push (expression parser) args)))
+    (setf paren (consume parser :right-paren "Expect ')' after arguments."))
+    (make-call :callee callee
+	       :paren paren
+	       :arguments (reverse args))))
 
 (defun primary (parser)
   (declare (type parser parser))

@@ -1,0 +1,51 @@
+if (true) {
+  print "a";
+}
+else {
+  print "b";
+}
+
+if (false) {
+  print "c";
+}
+else {
+  print "d";
+}
+
+if (true) {
+  print "e";
+}
+
+if (false) {
+  print "f";
+}
+
+print "g";
+
+print "hi" or yes;
+print nil or "yes";
+
+var a = 0;
+while (a < 3) {
+  print "what a faye";
+  print a + 1;
+  a = a + 1;
+}
+
+for (var b = 0; b < 5; b = b + 1) {
+  print "Lyra ";
+  print b;
+}
+
+
+for (var c = 0; c < a;) {
+  print "Owls ";
+  print c;
+  c = c + 1;
+}
+
+
+// for (;; a = a + 1) {
+//   print "Cows ";
+//   print a;
+// }

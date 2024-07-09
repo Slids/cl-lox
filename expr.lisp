@@ -11,6 +11,11 @@
   (operator nil :type lox.token:token)
   (right nil :type expr))
 
+(defstruct (call (:include expr))
+  (callee nil :type expr)
+  (paren nil :type lox.token:token)
+  (arguments nil))
+
 (defstruct (grouping (:include expr))
   (expression nil :type expr))
 
